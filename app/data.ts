@@ -101,6 +101,14 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: "AbortController is cooler than you think",
+    source: "Jun '25, @blog",
+    description:
+      "Really, if you don't like it yet -- you definitely should start",
+    link: "/blog/cool-abort-controller",
+    uid: "blog-6",
+  },
+  {
     title: "From Lag to Swag: Performance Hacks in the JS World",
     source: "Jan '25, @kruko",
     description:
