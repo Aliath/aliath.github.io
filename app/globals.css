@@ -30,3 +30,18 @@
   --sh-property: #73daca;
   --sh-entity: #e0af68;
 }
+
+.blink {
+  animation: blink-animation 0.9s steps(2, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}

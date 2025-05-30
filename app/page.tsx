@@ -1,7 +1,9 @@
+"use client";
+
 import { AnimatedBackground } from "@/components/ui/animated-background";
 import { Magnetic } from "@/components/ui/magnetic";
 import { Spotlight } from "@/components/ui/spotlight";
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink, TextCursor } from "lucide-react";
 import Link from "next/link";
 import {
   BLOG_POSTS,
@@ -10,6 +12,7 @@ import {
   SOCIAL_LINKS,
   WORK_EXPERIENCE,
 } from "./data";
+import { motion } from "motion/react";
 
 function MagneticSocialLink({
   children,
@@ -22,6 +25,8 @@ function MagneticSocialLink({
     <Magnetic springOptions={{ bounce: 0 }} intensity={0.3}>
       <a
         href={link}
+        target="_blank"
+        rel="noopener noreferrer"
         className="group relative inline-flex shrink-0 items-center gap-[1px] rounded-full bg-zinc-100 px-2.5 py-1 text-sm text-black transition-colors duration-200 hover:bg-zinc-950 hover:text-zinc-50 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
       >
         {children}
@@ -33,22 +38,38 @@ function MagneticSocialLink({
 
 export default function Personal() {
   return (
-    <div className="space-y-24">
-      <div className="flex-1 flex flex-col gap-4">
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Focused on building fast, easy-to-use websites that combine
-          cutting-edge UI with smooth coding.
-        </p>
+    <motion.main className="space-y-24" initial="hidden" animate="visible">
+      <motion.section
+        variants={{
+          hidden: { opacity: 0, x: 4, y: -4, filter: "blur(4px)" },
+          visible: { opacity: 1, x: 0, filter: "blur(0px)" },
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex-1 flex flex-col gap-4">
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Focused on building fast, easy-to-use websites that combine
+            cutting-edge UI with smooth coding.
+          </p>
 
-        <p className="text-zinc-600 dark:text-zinc-400">
-          Passionate about data visualization, building browser tools that turn
-          complex data into clear, easy-to-understand visuals -- all while
-          keeping things fast and efficient.
-        </p>
-      </div>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Passionate about data visualization, building browser tools that
+            turn complex data into clear, easy-to-understand visuals &mdash; all
+            while keeping things fast and efficient.
+          </p>
+        </div>
+      </motion.section>
 
-      <div>
-        <h3 className="mb-3 text-lg font-medium">Blog</h3>
+      <motion.section
+        variants={{
+          hidden: { opacity: 0, x: -4, y: 4, filter: "blur(4px)" },
+          visible: { opacity: 1, y: 0, x: 0, filter: "blur(0px)" },
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <h3 className="mb-3 text-lg font-medium">
+          Blog <TextCursor className="size-3 inline blink" />
+        </h3>
         <div className="flex flex-col space-y-0">
           <AnimatedBackground
             enableHover={true}
@@ -82,12 +103,12 @@ export default function Personal() {
                       )}
                       {post.title}
                     </h4>
-                    <p className="text-zinc-500 dark:text-zinc-400">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {post.description}
                     </p>
                   </div>
                   {post.source && (
-                    <p className="text-zinc-500 dark:text-zinc-400 min-w-max">
+                    <p className="text-zinc-500 dark:text-zinc-400 min-w-max text-sm">
                       {post.source}
                     </p>
                   )}
@@ -96,7 +117,7 @@ export default function Personal() {
             ))}
           </AnimatedBackground>
         </div>
-      </div>
+      </motion.section>
 
       <div>
         <h3 className="mb-5 text-lg font-medium">Work Experience</h3>
@@ -107,7 +128,7 @@ export default function Personal() {
               key={job.id}
             >
               <Spotlight
-                className="bg-gradient-to-b from-zinc-500 to-zinc-300 dark:from-zinc-600 dark:to-zinc-800"
+                className="hidden sm:block bg-gradient-to-b from-zinc-900 to-zinc-500 dark:from-zinc-500 dark:to-zinc-100 blur-2xl"
                 size={64}
               />
               <div className="relative w-full flex flex-col gap-1">
@@ -118,16 +139,56 @@ export default function Personal() {
                 {job.entries.map((entry) => (
                   <div
                     key={entry.id}
-                    className="flex items-center justify-between gap-8"
+                    className="flex items-center justify-between gap-8 normal-nums"
                   >
-                    <p className="text-zinc-500 dark:text-zinc-400">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {entry.title}
                     </p>
-                    <p className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
-                      {entry.start} - {entry.end}
+                    <p className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm">
+                      {entry.start} &mdash; {entry.end}
                     </p>
                   </div>
                 ))}
+
+                {job.links && (
+                  <div className="mt-4 flex text-sm">
+                    {job.links.map((link) => {
+                      const isEstimote = link.label === "[[ESTIMOTE]]";
+
+                      return (
+                        <div key={link.href}>
+                          <Link
+                            className="inline-flex gap-1 items-center hover:underline"
+                            href={link.href}
+                            key={link.href}
+                            target="_blank"
+                          >
+                            <ExternalLink className="size-4 inline" />
+                            {isEstimote ? "Case Study" : link.label}
+                          </Link>
+                          {isEstimote && (
+                            <>
+                              <sup> *</sup>
+                              <div className="text-xs mt-1 text-zinc-500 dark:text-zinc-500 italic">
+                                * Blake did a great job documenting the use
+                                case.{" "}
+                                <Link
+                                  href="https://www.uxdesk.design/"
+                                  target="_blank"
+                                  rel="noreferrer noopener"
+                                  className="underline"
+                                >
+                                  Check his portfolio
+                                </Link>
+                                !
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -143,7 +204,7 @@ export default function Personal() {
               key={entry.id}
             >
               <Spotlight
-                className="bg-gradient-to-b from-zinc-500 to-zinc-300 dark:from-zinc-600 dark:to-zinc-800"
+                className="hidden sm:block bg-gradient-to-b from-zinc-500 to-zinc-300 dark:from-zinc-600 dark:to-zinc-800 blur-2xl"
                 size={64}
               />
               <div className="relative w-full flex flex-col gap-1">
@@ -152,13 +213,29 @@ export default function Personal() {
                 </h4>
 
                 <div className="flex items-center justify-between gap-8">
-                  <p className="text-zinc-500 dark:text-zinc-400">
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm">
                     {entry.title}
                   </p>
-                  <p className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
-                    {entry.start} - {entry.end}
+                  <p className="text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm">
+                    {entry.start} &mdash; {entry.end}
                   </p>
                 </div>
+
+                {entry.links && (
+                  <div className="mt-2 text-sm">
+                    {entry.links.map((link) => (
+                      <Link
+                        className="inline-flex gap-1 items-center hover:underline"
+                        href={link.href}
+                        key={link.href}
+                        target="_blank"
+                      >
+                        <ExternalLink className="size-4 inline" />
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -181,6 +258,6 @@ export default function Personal() {
           ))}
         </div>
       </div>
-    </div>
+    </motion.main>
   );
 }

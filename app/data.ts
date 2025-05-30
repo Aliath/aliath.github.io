@@ -7,6 +7,7 @@ type WorkExperience = {
     id: string;
   }[];
   id: string;
+  links?: { label: string; href: string }[];
 };
 
 type BlogPost = {
@@ -23,6 +24,7 @@ type EducationAndActivity = {
   institution: string;
   start: string;
   end: string;
+  links?: { label: string; href: string }[];
 };
 
 type SocialLink = {
@@ -71,6 +73,12 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
         id: "1",
       },
     ],
+    links: [
+      {
+        label: "[[ESTIMOTE]]",
+        href: "https://www.uxdesk.design/casestudies/spacetimeos",
+      },
+    ],
     id: "estimote",
   },
   {
@@ -104,7 +112,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: "AbortController is cooler than you think",
     source: "Jun '25, @blog",
     description:
-      "Really, if you don't like it yet -- you definitely should start",
+      "Really, if you don't like it yet — you definitely should start",
     link: "/blog/cool-abort-controller",
     uid: "blog-6",
   },
@@ -166,6 +174,7 @@ export const EDUCATION_AND_ACTIVITIES: EducationAndActivity[] = [
     title: "Organizing JS-related tech events",
     start: "2024",
     end: "now",
+    links: [{ label: "Website", href: "https://rzeszowjs.dev/" }],
     id: "2",
   },
   {

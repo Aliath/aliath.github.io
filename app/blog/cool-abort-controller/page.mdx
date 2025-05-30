@@ -51,7 +51,7 @@ useEffect(() => {
 There are two caveats in the code above:
 - `#1`: I'm literally about to cry when I see functions named like this. Really. The structure of the code enforces us to come up with some names, giving us room to name them meaningfully and reduce <a href="https://minds.md/zakirullin/cognitive" target="_blank" rel="noopener noreferrer">cognitive load</a>. And yet, developers often don't take advantage of that and oftentimes use something I can't live with: `onClick={handleClick}` 😭😭😭 <br/><br/>Come on, _you can do better than that_!
 
-- `#2`: before fancy AI-powered code review tools came along, it was pretty common to forget that `.removeEventListener()` needs to take the same function reference as the one used in `.addEventListener()` <br/><br/>If you were lucky, you could notice duplicated behaviors or other quirks (particularly when using <a href="https://minds.md/zakirullin/cognitive" rel="noopener noreferrer">`React>=18` with StrictMode</a>). I committed this crime quite a few times, but well... I can easily blame it on the fact it's not super developer friendly.
+- `#2`: before fancy AI-powered code review tools came along, it was pretty common to forget that `.removeEventListener()` needs to take the same function reference as the one used in `.addEventListener()` <br/><br/>If you were lucky, you could notice duplicated behaviors or other quirks (particularly when using <a href="https://react.dev/reference/react/useEffect#my-effect-runs-twice-when-the-component-mounts" rel="noopener noreferrer" target="_blank">`React>=18` with StrictMode</a>). I committed this crime quite a few times, but well... I can easily blame it on the fact it's not super developer friendly.
 
 ## Speaking of developer friendliness
 
@@ -90,7 +90,7 @@ Is there anything then, that could generate such a signal without doing it manua
 I showed you the name and you immediately get it, didn't you? The code below is just a formality:
 
 ```ts
-fetch(url, { signal: AbortSignal.timeout(5000) })
+fetch(url, { signal: AbortSignal.timeout(5_000) })
   .catch((error) => {
     if (error.name === 'TimeoutError') {
       // oof, we've got a timeout
@@ -127,8 +127,8 @@ ___
 
 ## Summary
 
-1. If you can use a technique that minimizes the risk of making even obvious mistakes, use it -- that compounds and in longer term distinguishes good codebases from the bad ones.<br/><br/> **`AbortSignal` is definitely a technique that minimizes that risk.**
+1. If you can use a technique that minimizes the risk of making even obvious mistakes, use it -- that compounds and in longer term distinguishes good codebases from the bad ones<br/><br/> **`AbortSignal` is definitely a technique that minimizes that risk.**
 
-2. You should really avoid using statements like `onClick={handleClick}` that only clutter your code and take away the chance of making things more clear.<br/><br/>**When it comes to naming, <a href="https://dictionary.cambridge.org/dictionary/english/call-a-spade-a-spade" target="_blank" rel="noreferrer nofollow">call a spade a spade</a> (not `handleSpade`)**.
+2. You should really avoid using statements like `onClick={handleClick}` that only clutter your code and take away the chance of making things more clear<br/><br/>**When it comes to naming, <a href="https://dictionary.cambridge.org/dictionary/english/call-a-spade-a-spade" target="_blank" rel="noreferrer nofollow">call a spade a spade</a> (not `handleSpade`)**.
 
 3. Bias is a real thing, even in the world of programming. Don't let yourself stop exploring new tools just because you don't have a good experience with them (or have no experience whatsoever)<br/><br/>**Be pragmatic and open-minded to new solutions.**
