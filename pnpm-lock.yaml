@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   sugar-high:
-    hash: k7qqgve3w53auwgpslfm5mbw74
+    hash: dde42b2a6f94f8dedc7dc01fb7dbd5b784cb864bf13a10f5d30b79715757cf4b
     path: patches/sugar-high.patch
 
 importers:
@@ -51,7 +51,7 @@ importers:
         version: 19.1.0(react@19.1.0)
       sugar-high:
         specifier: ^0.9.3
-        version: 0.9.3(patch_hash=k7qqgve3w53auwgpslfm5mbw74)
+        version: 0.9.3(patch_hash=dde42b2a6f94f8dedc7dc01fb7dbd5b784cb864bf13a10f5d30b79715757cf4b)
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.6.0
@@ -2265,7 +2265,7 @@ snapshots:
       client-only: 0.0.1
       react: 19.1.0
 
-  sugar-high@0.9.3(patch_hash=k7qqgve3w53auwgpslfm5mbw74): {}
+  sugar-high@0.9.3(patch_hash=dde42b2a6f94f8dedc7dc01fb7dbd5b784cb864bf13a10f5d30b79715757cf4b): {}
 
   tailwind-merge@2.6.0: {}
 
