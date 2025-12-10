@@ -34,5 +34,10 @@
     "postcss": "^8",
     "tailwindcss": "^4.0.0",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "sugar-high": "patches/sugar-high.patch"
+    }
   }
 }

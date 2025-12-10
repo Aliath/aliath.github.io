@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  sugar-high:
+    hash: k7qqgve3w53auwgpslfm5mbw74
+    path: patches/sugar-high.patch
+
 importers:
 
   .:
@@ -46,7 +51,7 @@ importers:
         version: 19.1.0(react@19.1.0)
       sugar-high:
         specifier: ^0.9.3
-        version: 0.9.3
+        version: 0.9.3(patch_hash=k7qqgve3w53auwgpslfm5mbw74)
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.6.0
@@ -2260,7 +2265,7 @@ snapshots:
       client-only: 0.0.1
       react: 19.1.0
 
-  sugar-high@0.9.3: {}
+  sugar-high@0.9.3(patch_hash=k7qqgve3w53auwgpslfm5mbw74): {}
 
   tailwind-merge@2.6.0: {}
 
