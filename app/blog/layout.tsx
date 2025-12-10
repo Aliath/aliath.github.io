@@ -3,6 +3,7 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { TextMorph } from "@/components/ui/text-morph";
 import type React from "react";
 import { useEffect, useState } from "react";
+import Script from "next/script";
 
 function CopyButton() {
   const [text, setText] = useState("Copy");
@@ -36,6 +37,10 @@ export default function LayoutBlogPost({
 }) {
   return (
     <>
+      <Script
+        src="https://platform.twitter.com/widgets.js"
+        strategy="lazyOnload"
+      />
       <div className="pointer-events-none fixed left-0 top-0 z-10 h-12 w-full bg-gray-100 to-transparent backdrop-blur-xl [-webkit-mask-image:linear-gradient(to_bottom,black,transparent)] dark:bg-zinc-950" />
       <ScrollProgress
         className="fixed top-0 z-20 h-0.5 bg-zinc-600 dark:bg-[#7aa2f7]"

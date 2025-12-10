@@ -73,12 +73,6 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
         id: "1",
       },
     ],
-    links: [
-      {
-        label: "[[ESTIMOTE]]",
-        href: "https://www.uxdesk.design/casestudies/spacetimeos",
-      },
-    ],
     id: "estimote",
   },
   {
@@ -108,6 +102,13 @@ export const WORK_EXPERIENCE: WorkExperience[] = [
 ];
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    title: "How useful is the `using` keyword?",
+    source: "Dec '25, @blog",
+    description: "Is `using` going to change the JS world?",
+    link: "/blog/how-useful-is-using",
+    uid: "blog-7",
+  },
   {
     title: "AbortController is cooler than you think",
     source: "Jun '25, @blog",

@@ -1,0 +1,205 @@
+export const metadata = {
+  title: 'How useful is the `using` keyword?',
+  description: 'Is `using` going to change the JS world?',
+  authors: [{ name: 'Bart Słysz', url: 'https://aliath.github.io' }],
+  alternates: {
+    canonical: '/blog/how-useful-is-using',
+  }
+};
+
+# How useful is the `using` keyword?
+
+As of December 2025, the [Explicit Resource Management proposal](https://github.com/tc39/proposal-explicit-resource-management) is still at Stage 3 (not "Finished" Stage yet) and is not shipped unflagged in any major JavaScript engine.
+
+You can play with it today only behind experimental flags:
+- V8 (Node.js 24+, Chrome 134+) → `--harmony-explicit-resource-management`
+- Firefox Nightly → enable the pref in `about:config`
+- Bun → built-in experimental support
+- Deno → `--unstable-erm`
+
+TypeScript 5.2 can already parse and type-check `using` and `await using` declarations (when `--target` is ES2023 or higher and `--lib` includes `esnext.disposable`), but to actually run the code that runs today you still need a transpiler or plugin (Babel, SWC or `ts-patch` with the `explicit-resource-management` transform).
+
+## The benefits
+
+For those who for some reason haven't heard about it yet, the `using` keyword is a way of defining resources that have their built-in dispose method, allowing us to control how the resource should be gracefully cancelled/deleted/freed at the resource level, not the use case level; the most cliche example of using that is creating a database connection like this:
+
+```ts
+// here's what we're used to:
+function getDataWithoutUsing() {
+  const connection = getDatabase();
+
+  // query db...
+
+  connection.close();
+}
+
+// here's the brand new method that automatically cancels the database once block is left
+function getDisposableDatabase() {
+  const connection = getDatabase();
+
+  connection[Symbol.dispose] = () => {
+    connection.close();
+  }
+}
+
+function getDataWithUsing() {
+  using connection = getDisposableDatabase();
+
+  // query db...
+
+  // no need to clear it on your own in here
+}
+```
+
+You can be skeptical about the disposable object, since the close operation is implicit, and you might feel like you forgot doing something or you actually don't know what's actually happening under the hood, but on the flip side of the coin you can fully forget about cancelling/closing/releasing things on your own, just use `using` (nice wordplay, isn't it?), and we can call it a day.
+
+## Enabling things for the block scope
+
+One more example i came up with is to enable certain mechanism only for a given block scope. In this scenario we don't actually use the `using` keyword the way it was designed, but can leverage the fact the `[Symbol.dispose]` is being called right before the block is "orphaned".
+
+Real-life example: enabling debug logs only for a given block; while debug logs are usually enabled only for development environments, we can enable it for a given piece of code (or rather: block), so that we can have a detailed trace for a single thing rather than spamming logs with redundant info, here's the example:
+
+```ts
+const env = { DEBUG_LOG_ENABLED: false };
+
+const debugLog = (...content: any[]) => {
+  if (env.DEBUG_LOG_ENABLED) {
+    // log content
+  }
+}
+
+const enableDebuggingForBlock = () => {
+  const previousValue = env.DEBUG_LOG_ENABLED;
+  env.DEBUG_LOG_ENABLED = true;
+
+  return {
+    [Symbol.dispose]: () => {
+      env.DEBUG_LOG_ENABLED = previousValue;
+    }
+  }
+}
+
+// these debug logs will be printed
+{
+  using _ = enableDebuggingForBlock();
+
+  debugLog('a');
+  debugLog('b');
+}
+
+// but these won't
+
+{
+  debugLog('a');
+  debugLog('b');
+}
+
+```
+
+## Less cliche example
+
+The case w/ getting the DB connection is boring, i know; the well-designed architectures should rather pass the DB object to the function that uses it so that the function can be run with different DB handles and even tested using mock/stub database handles. But we can also use super-handy superheroes like `AbortController` to make things even better:
+
+```tsx
+const getDisposableController = () => {
+  const controller = new AbortController();
+
+  controller[Symbol.dispose] = () => {
+    controller.abort();
+  }
+
+  return controller;
+}
+
+const userActiveInAnyDataSource = async () => {
+  using abortController = getDisposableController();
+
+  try {
+    // we intentionally use Promise.race() here:
+    // whichever API responds first wins, and the other request
+    // is cancelled via the abort controller when this block exits
+    // this prevents resource waste from slow APIs
+    const firstApiUser = await Promise.race([
+      fetch('/first-api', { signal: abortController.signal }),
+      fetch('/second-api', { signal: abortController.signal }),
+    ]);
+    
+    return firstApiUser;
+  } catch {
+    // if the race fails, the controller automatically aborts
+    // any still-pending request when exiting this block,
+    // no manual cleanup needed
+    return false;
+  }
+}
+```
+
+Note: only the still-pending fetch is aborted; the one that already settled is unaffected, which is exactly what we want.
+
+## How funny the joke about react `"use using"` directive actually is?
+
+<blockquote className="twitter-tweet"><p lang="en" dir="ltr">React 19 using Typescript 6 <a href="https://t.co/Wol9TKtkbW">pic.twitter.com/Wol9TKtkbW</a></p>&mdash; JLarky (@JLarky) <a href="https://twitter.com/JLarky/status/1669741878324113408?ref_src=twsrc%5Etfw">June 16, 2023</a></blockquote>
+
+There was a meme posted on X about Next.js acquiring yet another directive called "use using"; while it's quite funny i think we aren't in much danger there, and here's why:
+
+### Component function lifetime
+
+If you've ever written a react component you know that it's nothing else than a function that can use some hooks along the way and return a final node that should be rendered; most of the times it's wrapped with a charming jsx pattern that just tries to imitate you write an html-alike code.
+
+In today's function-component model, using declarations are indeed called immediately after the return statement, so they don't help with mount/unmount cleanup -- that's still the domain of `useEffect` or similar hooks.
+
+
+### But what if?
+
+Here's a hypothetical visualization of how `using` could elegantly handle mount/unmount cleanup in an imagined generator-based React model (not actual React):
+
+```tsx
+
+function* Component() {
+  // ===
+  // here's the initialization part, sort of "on-mount" part
+  // for the things that should be identified once and released
+  // right after component is unmounted
+  // ===
+
+  const {state, props, isMounted} = getComponentMetadata();
+  using _ = disposableEventHandler('keydown', (event) => {
+    // do whatever you want w/ the event
+    // the handler will unmount the event as a part of dispose method
+  });
+  
+
+  while (isMounted) {
+    yield (
+      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <h1>Simple Counter Example</h1>
+        <p style={{ fontSize: '24px' }}>Count: {state.get('count')}</p>
+        <button onClick={() => state.set('count', (prev) => prev + 1)}>
+          Increment
+        </button>
+        <button onClick={() => state.set('count', (prev) => prev - 1)}>
+          Decrement
+        </button>
+        <button onClick={() => state.set('count', 0)}>
+          Reset
+        </button>
+      </div>
+    );
+  }
+
+  // the "unmount" part, that we actually shouldn't care much for,
+  // since the brand new framework is leveraging the `using` keyword
+}
+
+```
+
+
+## Will it change the world, though?
+
+As far as I'm concerned -- not really. It's handy, don't get me wrong, but it won't flip the JavaScript world upside down. What it does do well is handle the annoying cases where resource cleanup order actually matters, think stacked resources where you need to release them in reverse order. [The TC39 docs have solid examples of this](https://github.com/tc39/proposal-explicit-resource-management?tab=readme-ov-file#motivations) and `using` makes that less of a headache.
+
+Where it shines is in complicated scenarios: managing multiple interdependent resources, ensuring cleanup happens in the right order, or streamlining patterns that currently need a lot of boilerplate. For simple one-off resources? Probably overkill. For complex resource management? Actually useful.
+
+The one thing I'd stress: just because you can add `[Symbol.dispose]` to an object doesn't mean you should without thinking about it. If you're serious about using this, consider wrapping things with a helper like `makeDisposable(obj, cleanupFn)` to make it explicit and safer. That way you're not quietly assuming cleanup is happening when it might not be.
+
+Is it a feature I'm excited about? Sure. It solves real problems in specific contexts. Will it fundamentally change how we write JavaScript? As far as I'm concerned, probably not.

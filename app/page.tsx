@@ -153,8 +153,6 @@ export default function Personal() {
                 {job.links && (
                   <div className="mt-4 flex text-sm">
                     {job.links.map((link) => {
-                      const isEstimote = link.label === "[[ESTIMOTE]]";
-
                       return (
                         <div key={link.href}>
                           <Link
@@ -164,26 +162,7 @@ export default function Personal() {
                             target="_blank"
                           >
                             <ExternalLink className="size-4 inline" />
-                            {isEstimote ? "Case Study" : link.label}
                           </Link>
-                          {isEstimote && (
-                            <>
-                              <sup> *</sup>
-                              <div className="text-xs mt-1 text-zinc-500 dark:text-zinc-500 italic">
-                                * Blake did a great job documenting the use
-                                case.{" "}
-                                <Link
-                                  href="https://www.uxdesk.design/"
-                                  target="_blank"
-                                  rel="noreferrer noopener"
-                                  className="underline"
-                                >
-                                  Check his portfolio
-                                </Link>
-                                !
-                              </div>
-                            </>
-                          )}
                         </div>
                       );
                     })}
