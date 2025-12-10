@@ -21,7 +21,7 @@ TypeScript 5.2 can already parse and type-check `using` and `await using` declar
 
 ## The benefits
 
-For those who for some reason haven't heard about it yet, the `using` keyword is a way of defining resources that have their built-in dispose method, allowing us to control how the resource should be gracefully cancelled/deleted/freed at the resource level, not the use case level; the most cliche example of using that is creating a database connection like this:
+If you haven't heard about it yet, the `using` keyword is a way of defining resources that have their built-in dispose method, allowing us to control how the resource should be gracefully cancelled/deleted/freed at the resource level, not the use case level; the most cliche example of using that is creating a database connection like this:
 
 ```ts
 // here's what we're used to:
@@ -33,7 +33,8 @@ function getDataWithoutUsing() {
   connection.close();
 }
 
-// here's the brand new method that automatically cancels the database once block is left
+// here's the new approach that automatically closes
+// the database once block is left
 function getDisposableDatabase() {
   const connection = getDatabase();
 
@@ -55,7 +56,7 @@ You can be skeptical about the disposable object, since the close operation is i
 
 ## Enabling things for the block scope
 
-One more example i came up with is to enable certain mechanism only for a given block scope. In this scenario we don't actually use the `using` keyword the way it was designed, but can leverage the fact the `[Symbol.dispose]` is being called right before the block is "orphaned".
+Another cool example: enabling certain mechanism only for a given block scope. In this scenario we don't actually use the `using` keyword the way it was designed, but can leverage the fact the `[Symbol.dispose]` is being called right before the block is "orphaned".
 
 Real-life example: enabling debug logs only for a given block; while debug logs are usually enabled only for development environments, we can enable it for a given piece of code (or rather: block), so that we can have a detailed trace for a single thing rather than spamming logs with redundant info, here's the example:
 
@@ -136,15 +137,15 @@ const userActiveInAnyDataSource = async () => {
 
 Note: only the still-pending fetch is aborted; the one that already settled is unaffected, which is exactly what we want.
 
-## How funny the joke about react `"use using"` directive actually is?
+## How funny is the `"use using"` directive joke, actually?
 
 <blockquote className="twitter-tweet"><p lang="en" dir="ltr">React 19 using Typescript 6 <a href="https://t.co/Wol9TKtkbW">pic.twitter.com/Wol9TKtkbW</a></p>&mdash; JLarky (@JLarky) <a href="https://twitter.com/JLarky/status/1669741878324113408?ref_src=twsrc%5Etfw">June 16, 2023</a></blockquote>
 
-There was a meme posted on X about Next.js acquiring yet another directive called "use using"; while it's quite funny i think we aren't in much danger there, and here's why:
+JLarky posted this meme about Next.js getting yet another directive called "use using" -- and while it's funny, i don't think we're in much danger of that actually happening, here's why:
 
 ### Component function lifetime
 
-If you've ever written a react component you know that it's nothing else than a function that can use some hooks along the way and return a final node that should be rendered; most of the times it's wrapped with a charming jsx pattern that just tries to imitate you write an html-alike code.
+If you've ever written a react component you know that it's nothing else than a function that can use some hooks along the way and return a final node that should be rendered; most of the time it's wrapped with a charming jsx pattern that just tries to imitate you write an html-alike code.
 
 In today's function-component model, using declarations are indeed called immediately after the return statement, so they don't help with mount/unmount cleanup -- that's still the domain of `useEffect` or similar hooks.
 
@@ -162,7 +163,7 @@ function* Component() {
   // right after component is unmounted
   // ===
 
-  const {state, props, isMounted} = getComponentMetadata();
+  const { state, props, isMounted } = getComponentMetadata();
   using _ = disposableEventHandler('keydown', (event) => {
     // do whatever you want w/ the event
     // the handler will unmount the event as a part of dispose method
@@ -171,9 +172,9 @@ function* Component() {
 
   while (isMounted) {
     yield (
-      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <div>
         <h1>Simple Counter Example</h1>
-        <p style={{ fontSize: '24px' }}>Count: {state.get('count')}</p>
+        <p>Count: {state.get('count')}</p>
         <button onClick={() => state.set('count', (prev) => prev + 1)}>
           Increment
         </button>
